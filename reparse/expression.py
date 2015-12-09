@@ -107,8 +107,9 @@ class Expression(object):
 
 def AlternatesGroup(expressions, final_function, name=""):
     """ Group expressions using the OR character ``|``
-    >>> from collections import namedtuple
-    >>> expr = namedtuple('expr', 'regex group_lengths run')('(1)', [1], None)
+    >>> from collections import defaultdict
+    >>> fdd = defaultdict(int, a=0)
+    >>> expr = Expression('(1)', fdd, [1], None)
     >>> grouping = AlternatesGroup([expr, expr], lambda f: None, 'yeah')
     >>> grouping.regex  # doctest: +IGNORE_UNICODE
     '(?:(1))|(?:(1))'
@@ -122,18 +123,25 @@ def AlternatesGroup(expressions, final_function, name=""):
 
 
 def Group(expressions, final_function, inbetweens, name=""):
-    """ Group expressions together with ``inbetweens`` and with the output of a ``final_functions``.
+    """ Group expressions together with ``inbetweens`` and with the output of a ``final_function``.
     """
     lengths = []
     functions = []
-    regex = ""
+    regex_str = ""
     i = 0
     for expression in expressions:
-        regex += inbetweens[i]
-        regex += "(?:" + expression.regex + ")"
-        lengths.append(sum(expression.group_lengths))
+        regex_str += inbetweens[i]
+        regex_str += "(?:" + expression.regex + ")"
+        
+        number_of_groups = sum(expression.group_lengths)
+        parsed_groups = expression.pattern.groups
+        if number_of_groups != parsed_groups:
+            print "{} expected {} group(s), but got {}".format(expression.name, number_of_groups, parsed_groups)
+            number_of_groups = parsed_groups
+        
+        lengths.append(number_of_groups)
         functions.append(expression.run)
         i += 1
-    regex += inbetweens[i]
+    regex_str += inbetweens[i]
 
-    return Expression(regex, functions, lengths, final_function, name)
+    return Expression(regex_str, functions, lengths, final_function, name)
