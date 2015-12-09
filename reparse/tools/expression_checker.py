@@ -32,17 +32,31 @@ def check_expression(testing_framework, expression_dict):
     ...   def assertFalse(self, value, msg): self.assertTrue(not value, msg)
     >>> check_expression(mock_framework(),
     ...   {'class': {'group' :{'Matches': " 0 | 1", 'Non-Matches': "2 | 0 2", 'Expression': "[0-1]"}}})
+    >>> check_expression(mock_framework(),
+    ...   {'class': {'group' :{'Matches': ["0", "1"], 'Non-Matches': ["2", " 0"], 'Expression': "[01]"}}})
     """
     expression_sub = get_expression_sub()
     
     for expression_type_name, expression_type in expression_dict.items():
         for name, expression_object in expression_type.items():
             if 'Matches' in expression_object.keys():
-                for test in expression_object['Matches'].split('|'):
+                matches = parse_test_cases(expression_object['Matches'])
+                for test in matches:
                     # Substitute and check to make sure that the entire string matches
-                    result = expression_sub(expression_object['Expression'], '', test.strip()) == ''
+                    result = expression_sub(expression_object['Expression'], '', test) == ''
                     testing_framework.assertTrue(result, match_error_msg.format(expression_type_name, name, test))
             if 'Non-Matches' in expression_object.keys():
-                for test in expression_object['Non-Matches'].split('|'):
-                    result = expression_sub(expression_object['Expression'], '', test.strip()) == ''
+                non_matches = parse_test_cases(expression_object['Non-Matches'])
+                for test in non_matches:
+                    result = expression_sub(expression_object['Expression'], '', test) == ''
                     testing_framework.assertFalse(result, non_match_error_msg.format(expression_type_name, name, test))
+                    
+                    
+def parse_test_cases(test_value):
+    try:
+        test_cases = [test.strip() for test in test_value.split('|')]
+    except AttributeError:
+        test_cases = test_value
+        
+    return test_cases
+    
