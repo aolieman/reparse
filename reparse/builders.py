@@ -123,7 +123,7 @@ def _build(output_patterns, patterns_dict, expression_builder, function_builder,
     for name, pattern in patterns_dict.items():
         try:
             pat = build_pattern(name, pattern['Pattern'], expression_builder, function_builder)
-            pat.order = int(pattern.get('Order', 0))
+            pat.order = int(pattern.get('Order', 1))
             output_patterns.append(pat)
             expression_builder.add_type(pat, name)
         except ExpressionGroupNotFound:

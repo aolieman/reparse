@@ -35,9 +35,10 @@ def alt_parser(patterns):
     def parse(line):
         output = []
         for pattern in patterns:
-            results = pattern.scan(line)
-            if results and any(results):
-                output.append((pattern.order, results))
+            if pattern.order > 0:
+                results = pattern.scan(line)
+                if results and any(results):
+                    output.append((pattern.order, results))
         return get_first(reduce(remove_lower_overlapping, get_second(sorted(output)), []))
 
     return parse
