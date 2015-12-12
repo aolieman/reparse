@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 import regex
-from reparse.config import get_expression_compiler
+import logging
+from reparse.config import get_expression_compiler, console_handler
 
+logger = logging.getLogger(__name__)
+logger.addHandler(console_handler)
 
 class Expression(object):
     """ Expressions are the building blocks of parsers.
@@ -136,7 +139,9 @@ def Group(expressions, final_function, inbetweens, name=""):
         number_of_groups = sum(expression.group_lengths)
         parsed_groups = expression.pattern.groups
         if number_of_groups != parsed_groups:
-            print "{} expected {} group(s), but got {}".format(expression.name, number_of_groups, parsed_groups)
+            logger.warning(
+                "{} expected {} group(s), but got {}".format(expression.name, number_of_groups, parsed_groups)
+            )
             number_of_groups = parsed_groups
         
         lengths.append(number_of_groups)

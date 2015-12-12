@@ -1,4 +1,5 @@
 import regex
+import logging
 
 # This number should be bigger than the longest
 # chain of patterns-inside-patterns
@@ -12,3 +13,9 @@ def get_expression_compiler():
     
 def get_expression_sub(): 
     return lambda expression, sub, string: regex.sub(expression, sub, string, flags=regex_flags)
+    
+# Logging
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
